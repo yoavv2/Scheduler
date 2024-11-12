@@ -1,9 +1,9 @@
-import { ShiftScheduler } from '@/components/shift-scheduler'
+import ShiftScheduler from '@/components/ShiftScheduler';
 
 export default function HomePage() {
   return (
-    <div className="w-full">
+    <div className='w-full'>
       <ShiftScheduler />
     </div>
-  )
+  );
 }
