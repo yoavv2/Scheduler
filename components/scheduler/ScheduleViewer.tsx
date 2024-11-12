@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Download } from 'lucide-react';
 import {
   Table,
@@ -43,7 +43,16 @@ export default function ScheduleViewer({
   schedule,
   employees,
 }: ScheduleViewerProps) {
-  const tableRef = useRef<HTMLDivElement>(null);
+  const [localEmployees, setLocalEmployees] = useState<Employee[]>(employees);
+
+  useEffect(() => {
+    const storedEmployees = localStorage.getItem('employees');
+    if (storedEmployees) {
+      setLocalEmployees(JSON.parse(storedEmployees));
+    }
+  }, []);
+
+  const tableRef = useRef<HTMLTableElement>(null);
 
   const getEmployeeName = (id: number) => {
     return employees.find((e) => e.id === id)?.name || 'Unassigned';
@@ -62,9 +71,15 @@ export default function ScheduleViewer({
     );
   };
 
+  const handleCSVExport = () => {
+    generateCSV(schedule, employees);
+  };
+
   const handlePDFExport = async () => {
     if (tableRef.current) {
-      await generatePDF(tableRef.current);
+      await generatePDF(tableRef.current, employees);
+    } else {
+      alert('Table reference is not available.');
     }
   };
 
@@ -100,10 +115,10 @@ export default function ScheduleViewer({
         </DropdownMenu>
       </div>
 
-      <div className='relative rounded-md border' ref={tableRef}>
+      <div className='relative rounded-md border'>
         <ScrollArea className='w-full whitespace-nowrap rounded-md'>
           <div className='min-w-[800px]'>
-            <Table>
+            <Table ref={tableRef}>
               <TableHeader>
                 <TableRow>
                   <TableHead className='w-[100px] bg-background sticky left-0 z-10'>
